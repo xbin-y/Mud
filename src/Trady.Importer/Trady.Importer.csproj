@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../build/public.props"/>
+  <Import Project="../../build/version.props"/>
+  <Import Project="../../build/TargetFrameworks.props"/>
+  <ItemGroup>
+    <!--<Compile Include="**\*.cs" />-->
+    <EmbeddedResource Include="**\*.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Trady.Importer.Csv\Trady.Importer.Csv.csproj" />
+    <ProjectReference Include="..\Trady.Importer.Stooq\Trady.Importer.Stooq.csproj" />
+    <ProjectReference Include="..\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
+  </ItemGroup>
+  <!--<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />-->
+</Project>

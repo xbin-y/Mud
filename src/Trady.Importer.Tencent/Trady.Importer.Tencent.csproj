@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../build/public.props"/>
+  <Import Project="../../build/version.props"/>
+  <Import Project="../../build/TargetFrameworks.props"/>
+  <ItemGroup>
+    <ProjectReference Include="..\Trady.Core\Trady.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>
