@@ -27,7 +27,7 @@ namespace Trady.Test
 		{
 			// var csvImporter = new CsvImporter("fb.csv", CultureInfo.GetCultureInfo("en-US"));
 			// return await csvImporter.ImportAsync("fb");
-            return await new TencentImporter().ImportAsync("sh603259", new DateTime(2012, 1, 1), DateTime.Today, PeriodOption.Daily);
+            return await new TencentImporter().ImportAsync("sh603259", new DateTime(2015, 1, 1), DateTime.Today, PeriodOption.Daily);
         }
 
 		private const string logPath = "backtest.txt";
@@ -46,7 +46,8 @@ namespace Trady.Test
 			var fullIOhlcvDatas = await ImportIOhlcvDatasAsync();
 			var candles = fullIOhlcvDatas;
 
-			var buyRule = Rule.Create(ic => ic.IsMacdBullishCross(12, 26, 9));
+			var buyRule = Rule.Create(ic => ic.IsMacdBullishCross(12, 26, 9)
+             && ic.IsBullish() && ic.IsMacdBullishCross());
 			var sellRule = Rule.Create(ic => ic.IsMacdBearishCross(12, 26, 9));
 
 			var runner = new Builder()

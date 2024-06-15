@@ -29,24 +29,70 @@ public class TencentImporter : IImporter
     {
         if (period != PeriodOption.Daily && period != PeriodOption.Weekly && period != PeriodOption.Monthly)
             throw new ArgumentException("This importer only supports daily, weekly & monthly data");
-        var periodValue = period switch
+        var periodValue = "day";
+        switch (period)
         {
-            PeriodOption.Daily => "day",
-            PeriodOption.Weekly => "week",
-            PeriodOption.Monthly => "month",
-            _ => throw new ArgumentOutOfRangeException(nameof(period), period, null)
-        };
+            case PeriodOption.Daily:
+            {
+                periodValue = "day";
+                break;
+            }
+            case PeriodOption.Weekly:
+                periodValue = "week";
+                break;
+            case PeriodOption.Monthly:
+                periodValue = "month";
+                break;
+        }
         using var httpClient = new HttpClient();
         var lowerSymbol = symbol.ToLower();
-        var url =
-            $"https://ifzq.gtimg.cn/appstock/app/kline/kline?param={lowerSymbol},{periodValue},{startTime?.Date.ToString("yyyy-MM-dd") ?? string.Empty},{endTime?.Date.ToString("yyyy-MM-dd") ?? string.Empty},2000";
-        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), token);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        var obj = JsonConvert.DeserializeObject<JObject>(json);
-        var tokenObj = obj.SelectToken($"$.data.{lowerSymbol}.{periodValue}");
-        var arr = tokenObj!.ToObject<List<List<object>>>();
-        return arr.Select(t => new Candle(DateTimeOffset.Parse(t[0].ToString()), decimal.Parse(t[1].ToString()), decimal.Parse(t[3].ToString()),
-            decimal.Parse(t[4].ToString()), decimal.Parse(t[2].ToString()), decimal.Parse(t[5].ToString()))).ToArray();
+        var end = endTime ?? DateTime.Today;
+        var year = 1;
+        if (startTime.HasValue)
+        {
+            year = (end.Year - startTime.Value.Year) + 1;
+        }
+        var data = new List<IOhlcv>();
+        if (startTime.HasValue && year > 3)
+        {
+            var start = startTime.Value;
+            var endT = start;
+            for (int i = 0; i < year; i=i+2)
+            {
+                endT = start.AddYears(2);
+                var url =
+                    $"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={lowerSymbol},{periodValue},{start.Date.ToString("yyyy-MM-dd")},{endT.Date.ToString("yyyy-MM-dd")},{640*3},qfq";
+                var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), token);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<JObject>(json);
+                var tokenObj = obj.SelectToken($"$.data.{lowerSymbol}.qfq{periodValue}");
+                if (tokenObj != null)
+                {
+                    var arr = tokenObj!.ToObject<List<List<object>>>();
+                    var list = arr.Select(t => new Candle(DateTimeOffset.Parse(t[0].ToString()), decimal.Parse(t[1].ToString()), decimal.Parse(t[3].ToString()),
+                        decimal.Parse(t[4].ToString()), decimal.Parse(t[2].ToString()), decimal.Parse(t[5].ToString()))).ToArray();
+                    data.AddRange(list);
+                }
+                start = endT > end ? end : endT;
+            }
+        }
+        else
+        {
+            var url =
+                $"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={lowerSymbol},{periodValue},{startTime?.Date.ToString("yyyy-MM-dd") ?? string.Empty},{endTime?.Date.ToString("yyyy-MM-dd") ?? string.Empty},{640*3},qfq";
+            var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), token);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeObject<JObject>(json);
+            var tokenObj = obj.SelectToken($"$.data.{lowerSymbol}.qfq{periodValue}");
+            var arr = tokenObj!.ToObject<List<List<object>>>();
+            var l =arr.Select(t => new Candle(DateTimeOffset.Parse(t[0].ToString()), decimal.Parse(t[1].ToString()), decimal.Parse(t[3].ToString()),
+                decimal.Parse(t[4].ToString()), decimal.Parse(t[2].ToString()), decimal.Parse(t[5].ToString()))).ToArray();
+            data.AddRange(l);
+        }
+
+        data = data.Distinct().ToList();
+        return data;
     }
 }

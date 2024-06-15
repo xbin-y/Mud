@@ -15,7 +15,7 @@ namespace Trady.Core
             Volume = volume;
         }
 
-        public DateTimeOffset DateTime { get; set; }
+        public DateTimeOffset DateTime { get; }
 
         public decimal Open { get; set; }
 
@@ -26,5 +26,15 @@ namespace Trady.Core
         public decimal Close { get; set; }
 
         public decimal Volume { get; set; }
+
+        public override int GetHashCode()
+        {
+            return DateTime.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return DateTime.Equals(obj);
+        }
     }
 }
