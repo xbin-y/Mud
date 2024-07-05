@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Mud.Windows.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Mud.Windows.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Mud.Windows"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        >
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20*"></ColumnDefinition>
+            <ColumnDefinition Width="80*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Margin="20">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBox Text="{Binding SearchText}" Watermark="Search for Albums...."/>
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+                <ListBox Name="SearchStockListBox" ItemsSource="{Binding SearchResults}" SelectedItem="{Binding SearchSelectedAlbum}"
+                         Background="Transparent" Margin="0 20" SelectionChanged="SearchStockListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                <TextBlock Margin="6,0" Text="{Binding FullSymbol}" />
+                                <TextBlock Margin="6,0" Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+            <ListBox ItemsSource="{Binding FocusOnStocks}" SelectedItem="{Binding SelectedAlbum}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Name="myGrid" RowDefinitions="auto, auto" ShowGridLines="False">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="A" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" >
+                                <Button Click="Remove_Focus_Button_OnClick">
+                                    <PathIcon Data="{StaticResource delete_regular}" />
+                                </Button>
+                                <TextBlock Margin="6,0" Text="{Binding FullSymbol}" />
+                                <TextBlock Margin="6,0" Text="{Binding Name}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+        <Grid Grid.Column="1" ColumnDefinitions="*">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80*"/>
+                <RowDefinition Height="20*"/>
+            </Grid.RowDefinitions>
+            <lvc:CartesianChart Grid.Row="0"
+                                ZoomMode="Both"
+                                TooltipTextPaint="{Binding TextPaint}"
+                                Series="{Binding Series}"
+                                XAxes="{Binding XAxes}">
+            </lvc:CartesianChart>
+            <lvc:CartesianChart Grid.Row="1"
+                                ZoomMode="Both"
+                                TooltipTextPaint="{Binding TextPaint}"
+                                Series="{Binding VolSeries}"
+                                XAxes="{Binding VolAxis}">
+            </lvc:CartesianChart>
+        </Grid>
+    </Grid>
+</Window>
