@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Mud.Core.Models;
-using Trady.Core.Period;
 using Trady.Importer.Tencent;
 
 // ReSharper disable MethodHasAsyncOverload
@@ -102,15 +101,15 @@ public class StockManager : IStockManager
             var info = new DailyInfo
             {
                 Date = t.DateTime.DateTime,
-                Open = t.Open,
-                Close = t.Close,
-                High = t.High,
-                Low = t.Low,
-                Volume = t.Volume
+                Open = (double)t.Open,
+                Close = (double)t.Close,
+                High = (double)t.High,
+                Low = (double)t.Low,
+                Volume = (double)t.Volume
             };
             if (preIndex >= 0)
             {
-                info.PreClose = data[preIndex].Close;
+                info.PreClose = (double)data[preIndex].Close;
                 info.Change = (info.Close - info.PreClose) / info.PreClose;
             }
             preIndex++;

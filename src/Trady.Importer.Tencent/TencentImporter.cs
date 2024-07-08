@@ -53,6 +53,7 @@ public class TencentImporter : IImporter
             year = (end.Year - startTime.Value.Year) + 1;
         }
         var data = new List<IOhlcv>();
+        JObject lastJbo = null;
         if (startTime.HasValue && year > 3)
         {
             var start = startTime.Value;
@@ -67,6 +68,7 @@ public class TencentImporter : IImporter
                 var json = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<JObject>(json);
                 var tokenObj = obj.SelectToken($"$.data.{lowerSymbol}.qfq{periodValue}");
+                lastJbo = obj;
                 if (tokenObj != null)
                 {
                     var arr = tokenObj!.ToObject<List<List<object>>>();
@@ -85,13 +87,22 @@ public class TencentImporter : IImporter
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             var obj = JsonConvert.DeserializeObject<JObject>(json);
+            lastJbo = obj;
             var tokenObj = obj.SelectToken($"$.data.{lowerSymbol}.qfq{periodValue}");
             var arr = tokenObj!.ToObject<List<List<object>>>();
             var l =arr.Select(t => new Candle(DateTimeOffset.Parse(t[0].ToString()), decimal.Parse(t[1].ToString()), decimal.Parse(t[3].ToString()),
                 decimal.Parse(t[4].ToString()), decimal.Parse(t[2].ToString()), decimal.Parse(t[5].ToString()))).ToArray();
             data.AddRange(l);
         }
-
+        var last = lastJbo?.SelectToken($"$.data.{lowerSymbol}.qt.{lowerSymbol}");
+        if (last is JArray array)
+        {
+            var t = array.ToObject<List<object>>();
+            var date = DateTimeOffset.ParseExact(t[30].ToString(),"yyyyMMddHHmmss",null).DateTime.Date;
+            var candle = new Candle(date,decimal.Parse(t[5].ToString()), decimal.Parse(t[33].ToString()),
+                decimal.Parse(t[34].ToString()), decimal.Parse(t[3].ToString()), decimal.Parse(t[6].ToString()));
+            data.Add(candle);
+        }
         data = data.Distinct().ToList();
         return data;
     }
