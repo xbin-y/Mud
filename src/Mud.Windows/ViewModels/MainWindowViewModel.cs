@@ -111,14 +111,6 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             DataLabelsSize = 20,
             DataLabelsPaint = new SolidColorPaint(SKColors.Red),
-            // all the available positions at:
-            // https://livecharts.dev/api/2.0.0-rc1/LiveChartsCore.Measure.DataLabelsPosition
-            // DataLabelsPosition = DataLabelsPosition.Top,
-            // The DataLabelsFormatter is a function
-            // that takes the current point as parameter
-            // and returns a string.
-            // in this case we returned the PrimaryValue property as currency
-            DataLabelsFormatter = (point) => point.Coordinate.QuaternaryValue.ToString("#0.00"),
             UpStroke = new SolidColorPaint(SKColors.Red),
             UpFill = new SolidColorPaint(SKColors.Red),
             DownStroke = new SolidColorPaint(SKColors.Green),
@@ -157,15 +149,13 @@ public partial class MainWindowViewModel : ViewModelBase
             if (p.Coordinate.PrimaryValue.Equals(MaxValue.Value))
             {
                 p.Label.VerticalAlign= Align.Start;
-                var x = p.Label.Y * 0.1f;
-                var s  = p.Label.Y + x;
-                p.Label.Y = s;
+                p.Label.Text = p.Coordinate.PrimaryValue.ToString("N2");
                 return;
             }
             if (p.Coordinate.QuinaryValue.Equals(MinValue.Value))
             {
                 p.Label.VerticalAlign= Align.End;
-                p.Label.Y -= p.Label.Y * 0.1f;
+                p.Label.Text = p.Coordinate.QuinaryValue.ToString("N2");
                 return;
             }
             p.Label.Text = string.Empty;
