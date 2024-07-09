@@ -66,13 +66,13 @@
                 <RowDefinition Height="20*"/>
             </Grid.RowDefinitions>
             <lvc:CartesianChart Grid.Row="0"
-                                ZoomMode="Both"
+                                ZoomMode="{Binding ZoomAndPanMode}"
                                 TooltipTextPaint="{Binding TextPaint}"
                                 Series="{Binding Series}"
                                 XAxes="{Binding XAxes}">
             </lvc:CartesianChart>
             <lvc:CartesianChart Grid.Row="1"
-                                ZoomMode="Both"
+                                ZoomMode="{Binding ZoomAndPanMode}"
                                 TooltipTextPaint="{Binding TextPaint}"
                                 Series="{Binding VolSeries}"
                                 XAxes="{Binding VolAxis}">

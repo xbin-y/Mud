@@ -35,15 +35,37 @@ namespace Trady.Analysis.Extension
             return isValid(obj.Item1) && isValid(obj.Item2) && predicate(obj.Item1, obj.Item2, obj.Item3);
         }
 
+        /// <summary>
+        /// 上升
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static bool IsPositive(this decimal? obj)
             => IsTrue(obj, o => o > 0);
 
+        /// <summary>
+        /// 上升
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="mapper"></param>
+        /// <returns></returns>
         public static bool IsPositive(this decimal? obj, Func<decimal?, decimal?> mapper)
             => IsPositive(mapper(obj));
 
+        /// <summary>
+        /// 下跌
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static bool IsNegative(this decimal? obj)
             => IsTrue(obj, o => o < 0);
 
+        /// <summary>
+        /// 下跌
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="mapper"></param>
+        /// <returns></returns>
         public static bool IsNegative(this decimal? obj, Func<decimal?, decimal?> mapper)
             => IsNegative(mapper(obj));
     }
